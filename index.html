@@ -114,4 +114,28 @@
     window.addEventListener('load', loadBookings);
   </script>
 </body>
+
 </html>
+fetch("YOUR_WEB_APP_URL")
+  .then(res => res.json())
+  .then(data => {
+    let table = document.getElementById("bookings");
+    data.forEach((row, index) => {
+      if (index !== 0) { // skip header
+        let tr = `<tr>
+          <td>${row[0]}</td>
+          <td>${row[1]}</td>
+          <td>${row[2]}</td>
+          <td>${row[3]}</td>
+          <td>${row[4]}</td>
+        </tr>`;
+        table.innerHTML += tr;
+      }
+    });
+  });
+  <table border="1">
+  <thead>
+    <tr><th>Name</th><th>Station</th><th>Date</th><th>Time</th><th>Status</th></tr>
+  </thead>
+  <tbody id="bookings"></tbody>
+</table>
