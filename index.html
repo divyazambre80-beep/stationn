@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>EV Station Dashboard — View Bookings</title>
+
   <style>
     body {
       font-family: Inter, Arial, sans-serif;
@@ -30,7 +31,7 @@
     }
     main {
       padding: 20px;
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
     }
     table {
@@ -52,6 +53,7 @@
     .no-data { text-align: center; color: #777; margin-top: 40px; }
   </style>
 </head>
+
 <body>
   <header>
     <h2>⚡ EV Station Dashboard</h2>
@@ -60,92 +62,64 @@
 
   <main>
     <h3>📅 All User Bookings</h3>
+
     <table id="bookingsTable">
       <thead>
         <tr>
-          <th>Booking ID</th>
+          <th>Name</th>
           <th>Station</th>
           <th>Date</th>
           <th>Time</th>
-          <th>Gun</th>
           <th>User</th>
-          <th>Booked At</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody id="bookingsBody"></tbody>
     </table>
+
     <div id="noData" class="no-data" style="display:none;">No bookings found.</div>
   </main>
 
   <script>
-    const STORAGE_KEY = 'ev_allBookings_v1';
-    const tbody = document.getElementById('bookingsBody');
-    const noData = document.getElementById('noData');
-
-    function loadBookings() {
-      const bookings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      tbody.innerHTML = '';
-      if (bookings.length === 0) {
-        noData.style.display = 'block';
-        return;
-      } else {
-        noData.style.display = 'none';
-      }
-
-      bookings.slice().reverse().forEach(b => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${b.id}</td>
-          <td>${b.station}</td>
-          <td>${b.date}</td>
-          <td>${b.time}</td>
-          <td>${b.gun}</td>
-          <td>${b.user}</td>
-          <td>${b.bookingDateTime}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
     function goBack() {
-      window.location.href = 'index.html'; // change if your main page has a different name
+      window.location.href = "index.html"; // change if needed
     }
 
-    window.addEventListener('load', loadBookings);
-  </script>
-</body>
+    // Load booking data from Google Sheets
+    function loadBookings() {
+      fetch("https://script.google.com/macros/s/AKfyc2bzyt8ZSk-i8h5n4rexo_YYUTcl_jTls_yMuUn-hAMCULBHWrpocAqdyVswoyrq7JIc/exec")
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById("bookingsBody");
+          const noData = document.getElementById("noData");
 
+          tbody.innerHTML = "";
+
+          if (!data || data.length <= 1) {
+            noData.style.display = "block";
+            return;
+          } else {
+            noData.style.display = "none";
+          }
+
+          data.slice(1).forEach(row => {
+            let tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${row[0]}</td>
+              <td>${row[1]}</td>
+              <td>${row[2]}</td>
+              <td>${row[3]}</td>
+              <td>${row[4]}</td>
+              <td>${row[5]}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(error => console.error("Error loading data:", error));
+    }
+
+    window.addEventListener("load", loadBookings);
+  </script>
+
+</body>
 </html>
-<script>
-fetch("https://script.google.com/macros/s/AKfyc2bzyt8ZSk-i8h5n4rexo_YYUTcl_jTls_yMuUn-hAMCULBHWrpocAqdyVswoyrq7JIc/exec")
-  .then(res => res.json())
-  .then(data => {
-    let table = document.getElementById("bookings");
-    data.forEach((row, index) => {
-      if (index !== 0) { // skip header
-        let tr = `<tr>
-          <td>${row[0]}</td>
-          <td>${row[1]}</td>
-          <td>${row[2]}</td>
-          <td>${row[3]}</td>
-          <td>${row[4]}</td>
-          <td>${row[5]}</td>
-        </tr>`;
-        table.innerHTML += tr;
-      }
-    });
-  });
-</script>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Station</th>
-      <th>Date</th>
-      <th>Time</th>
-      <th>User</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody id="bookings"></tbody>
-</table>
